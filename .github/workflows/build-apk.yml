@@ -39,11 +39,11 @@ jobs:
         run: npx cap sync android
         working-directory: ${{ env.PROJECT_DIR }}
 
-      - name: Setup Gradle
+      - name: Download Gradle 9.5
         run: |
-          cd "${PROJECT_DIR}/android"
-          rm -f gradle/wrapper/gradle-wrapper.jar
-          gradle wrapper --gradle-version 9.5
+          wget -q https://services.gradle.org/distributions/gradle-9.5-bin.zip
+          unzip -q gradle-9.5-bin.zip
+          echo "$PWD/gradle-9.5/bin" >> $GITHUB_PATH
 
       - name: Build APK
         run: |
