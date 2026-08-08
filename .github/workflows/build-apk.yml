@@ -46,6 +46,21 @@ jobs:
         run: npx cap sync android
         working-directory: ${{ env.PROJECT_DIR }}
 
+      - name: Detect Android Gradle Plugin
+        run: |
+          echo "===== Android build.gradle ====="
+          cat build.gradle || true
+
+          echo "===== Android settings.gradle ====="
+          cat settings.gradle || true
+
+          echo "===== Searching for Android Gradle Plugin ====="
+          grep -R "com.android.tools.build:gradle\|com.android.application.*version" . \
+            --include="*.gradle" \
+            --include="*.gradle.kts" \
+            || true
+        working-directory: ${{ env.PROJECT_DIR }}/android
+
       - name: Remove corrupt Gradle Wrapper
         run: |
           rm -f gradle/wrapper/gradle-wrapper.jar
@@ -56,17 +71,24 @@ jobs:
         run: |
           curl -L --fail --retry 3 \
             -o gradle.zip \
-            https://services.gradle.org/distributions/gradle-9.5-bin.zip
+            https://services.gradle.org/distributions/gradle-9.5.0-bin.zip
 
           unzip -q gradle.zip -d "$HOME"
 
-          echo "$HOME/gradle-9.5/bin" >> $GITHUB_PATH
+          echo "$HOME/gradle-9.5.0/bin" >> $GITHUB_PATH
 
-          gradle --version
+          "$HOME/gradle-9.5.0/bin/gradle" --version
 
       - name: Build APK
-        run: gradle assembleDebug --no-daemon
+        run: |
+          gradle assembleDebug --no-daemon --stacktrace
         working-directory: ${{ env.PROJECT_DIR }}/android
+
+      - name: Verify APK
+        run: |
+          ls -lh app/build/outputs/apk/debug/
+          test -f app/build/outputs/apk/debug/app-debug.apk
+          echo "APK successfully created!"
 
       - name: Copy APK
         run: |
