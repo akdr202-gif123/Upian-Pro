@@ -21,11 +21,18 @@ jobs:
         run: |
           PROJECT_DIR=$(dirname "$(find extracted -name package.json | head -1)")
           echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
+          echo "Project folder: $PROJECT_DIR"
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
 
       - name: Install dependencies
         run: npm install
@@ -39,16 +46,12 @@ jobs:
         run: npx cap sync android
         working-directory: ${{ env.PROJECT_DIR }}
 
-      - name: Download Gradle 9.5
-        run: |
-          wget -q https://services.gradle.org/distributions/gradle-9.5-bin.zip
-          unzip -q gradle-9.5-bin.zip
-          echo "$PWD/gradle-9.5/bin" >> $GITHUB_PATH
+      - name: Make Gradle executable
+        run: chmod +x gradlew
+        working-directory: ${{ env.PROJECT_DIR }}/android
 
       - name: Build APK
-        run: |
-          chmod +x gradlew
-          ./gradlew assembleDebug
+        run: ./gradlew assembleDebug --no-daemon
         working-directory: ${{ env.PROJECT_DIR }}/android
 
       - name: Copy APK
