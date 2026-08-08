@@ -39,11 +39,13 @@ jobs:
         run: npx cap sync android
         working-directory: ${{ env.PROJECT_DIR }}
 
-      - name: Build APK
-        run: |
-          chmod +x gradlew
-          ./gradlew assembleDebug
-        working-directory: ${{ env.PROJECT_DIR }}/android
+      - - name: Build APK
+  run: |
+    cd "${PROJECT_DIR}/android"
+    rm -f gradle/wrapper/gradle-wrapper.jar
+    gradle wrapper
+    chmod +x gradlew
+    ./gradlew assembleDebug
 
       - name: Copy APK
         run: |
