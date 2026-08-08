@@ -8,8 +8,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Extract project ZIP
+        run: |
+          unzip -q project.zip -d extracted
+          echo "ZIP extracted"
+          find extracted -name package.json
+
+      - name: Find project folder
+        run: |
+          PROJECT_DIR=$(dirname "$(find extracted -name package.json | head -1)")
+          echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -18,29 +29,29 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+        working-directory: ${{ env.PROJECT_DIR }}
 
-      - name: Build project
+      - name: Build web app
         run: npm run build
+        working-directory: ${{ env.PROJECT_DIR }}
 
-      - name: Install Capacitor
-        run: |
-          npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap init "Upian Pro" "com.upian.pro" --web-dir=dist
-
-      - name: Add Android
-        run: npx cap add android
-
-      - name: Sync
+      - name: Sync Capacitor Android
         run: npx cap sync android
+        working-directory: ${{ env.PROJECT_DIR }}
 
       - name: Build APK
         run: |
-          cd android
           chmod +x gradlew
           ./gradlew assembleDebug
+        working-directory: ${{ env.PROJECT_DIR }}/android
+
+      - name: Copy APK
+        run: |
+          mkdir -p apk
+          cp "${PROJECT_DIR}/android/app/build/outputs/apk/debug/app-debug.apk" apk/Upian-Pro.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Upian-Pro-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: apk/Upian-Pro.apk
