@@ -43,7 +43,7 @@ jobs:
         run: |
           cd "${PROJECT_DIR}/android"
           rm -f gradle/wrapper/gradle-wrapper.jar
-          gradle wrapper
+          gradle wrapper --gradle-version 9.5
 
       - name: Build APK
         run: |
