@@ -54,7 +54,7 @@ jobs:
       - name: Remove invalid Gradle Wrapper JAR
         run: |
           rm -f gradle/wrapper/gradle-wrapper.jar
-          echo "Invalid Gradle Wrapper JAR removed."
+          echo "Invalid Gradle Wrapper JAR removed"
         working-directory: ${{ env.PROJECT_DIR }}/android
 
       - name: Install Gradle 9.5.0
@@ -72,12 +72,16 @@ jobs:
       - name: Build Debug APK
         run: |
           gradle assembleDebug --no-daemon --stacktrace
+        working-directory: ${{ env.PROJECT_DIR }}/android
 
       - name: Find Generated APK
         run: |
-          echo "Searching for APK files..."
+          echo "Searching for generated APK..."
 
-          find "${PROJECT_DIR}/android" -type f -name "*.apk" -print
+          find "${PROJECT_DIR}/android" \
+            -type f \
+            -name "*.apk" \
+            -print
 
           APK=$(find "${PROJECT_DIR}/android" \
             -type f \
@@ -86,13 +90,10 @@ jobs:
 
           if [ -z "$APK" ]; then
             echo "ERROR: No APK was generated."
-            echo "Checking Android build outputs..."
-            find "${PROJECT_DIR}/android/app/build" -maxdepth 5 -type f 2>/dev/null || true
             exit 1
           fi
 
-          echo "APK found at:"
-          echo "$APK"
+          echo "APK found: $APK"
 
           mkdir -p apk
           cp "$APK" apk/Upian-Pro.apk
