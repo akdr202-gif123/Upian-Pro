@@ -49,13 +49,20 @@ jobs:
       - name: Remove corrupt Gradle Wrapper
         run: |
           rm -f gradle/wrapper/gradle-wrapper.jar
-          echo "Corrupt Gradle Wrapper JAR removed"
+          echo "Corrupt Gradle Wrapper removed"
         working-directory: ${{ env.PROJECT_DIR }}/android
 
-      - name: Install Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          cache-disabled: true
+      - name: Install Gradle 9.5.0
+        run: |
+          curl -L --fail --retry 3 \
+            -o gradle.zip \
+            https://services.gradle.org/distributions/gradle-9.5-bin.zip
+
+          unzip -q gradle.zip -d "$HOME"
+
+          echo "$HOME/gradle-9.5/bin" >> $GITHUB_PATH
+
+          gradle --version
 
       - name: Build APK
         run: gradle assembleDebug --no-daemon
