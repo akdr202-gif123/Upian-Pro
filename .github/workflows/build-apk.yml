@@ -27,6 +27,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: ${{ env.PROJECT_DIR }}/package-lock.json
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -46,12 +48,11 @@ jobs:
         run: npx cap sync android
         working-directory: ${{ env.PROJECT_DIR }}
 
-      - name: Make Gradle executable
-        run: chmod +x gradlew
-        working-directory: ${{ env.PROJECT_DIR }}/android
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Build APK
-        run: ./gradlew assembleDebug --no-daemon
+        run: gradle assembleDebug --no-daemon
         working-directory: ${{ env.PROJECT_DIR }}/android
 
       - name: Copy APK
