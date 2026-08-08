@@ -46,10 +46,16 @@ jobs:
         run: npx cap sync android
         working-directory: ${{ env.PROJECT_DIR }}
 
-      - name: Setup Gradle
+      - name: Remove corrupt Gradle Wrapper
+        run: |
+          rm -f gradle/wrapper/gradle-wrapper.jar
+          echo "Corrupt Gradle Wrapper JAR removed"
+        working-directory: ${{ env.PROJECT_DIR }}/android
+
+      - name: Install Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          validate-wrappers: false
+          cache-disabled: true
 
       - name: Build APK
         run: gradle assembleDebug --no-daemon
