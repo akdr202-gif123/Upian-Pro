@@ -32,7 +32,10 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
+
+      - name: Check Java version
+        run: java -version
 
       - name: Install dependencies
         run: npm install
@@ -45,21 +48,6 @@ jobs:
       - name: Sync Capacitor Android
         run: npx cap sync android
         working-directory: ${{ env.PROJECT_DIR }}
-
-      - name: Detect Android Gradle Plugin
-        run: |
-          echo "===== Android build.gradle ====="
-          cat build.gradle || true
-
-          echo "===== Android settings.gradle ====="
-          cat settings.gradle || true
-
-          echo "===== Searching for Android Gradle Plugin ====="
-          grep -R "com.android.tools.build:gradle\|com.android.application.*version" . \
-            --include="*.gradle" \
-            --include="*.gradle.kts" \
-            || true
-        working-directory: ${{ env.PROJECT_DIR }}/android
 
       - name: Remove corrupt Gradle Wrapper
         run: |
